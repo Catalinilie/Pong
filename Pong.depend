@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1483870741 source:d:\projects\ip\pong\main.cpp
+	<windows.h>
+	<stdlib.h>
+	<iostream>
+	<time.h>
+	<conio.h>
+	<MMSystem.h>
+
