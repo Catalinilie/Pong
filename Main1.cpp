@@ -6,52 +6,50 @@
 #include <MMSystem.h>
 using namespace std;
 enum eDir { STOP = 0, LEFT = 1, UPLEFT = 2, DOWNLEFT = 3, RIGHT = 4, UPRIGHT = 5, DOWNRIGHT = 6 };
-class cBall
+class cMinge
 {
 private:
 	int x, y;
 	int originalX, originalY;
-	eDir direction;
+	eDir directie;
 public:
-
-	cBall(int posX, int posY)
+	cMinge(int pozX, int pozY)
 	{
-		originalX = posX;
-		originalY = posY;
-		x = posX;
-		y = posY;
-		direction = STOP;
+		originalX = pozX;
+		originalY = pozY;
+		x = pozX;
+		y = pozY;
+		directie = STOP;
 	}
-	void Reset()
+	void Reseteaza()
 	{
 		x = originalX;
 		y = originalY;
-		direction = STOP;
+		directie = STOP;
 	}
-	void changeDirection(eDir d)
+	void schimbaDirectia(eDir d)
 	{
-		direction = d;
+		directie = d;
 	}
-	void randomDirection()
+	void randomdirectie()
 	{
-		direction = (eDir)((rand() % 6) + 1);
+		directie = (eDir)((rand() % 6) + 1);
 	}
 	void directieOpusa()
 	{
-		if (direction == LEFT) direction = RIGHT;
-		else if (direction == UPLEFT) direction = UPRIGHT;
-		else if (direction == DOWNLEFT) direction = DOWNRIGHT;
-		else if (direction == RIGHT) direction = LEFT;
-		else if (direction == UPRIGHT) direction = UPLEFT;
-		else if (direction == DOWNRIGHT) direction = DOWNLEFT;
-
+		if (directie == LEFT) directie = RIGHT;
+		else if (directie == UPLEFT) directie = UPRIGHT;
+		else if (directie == DOWNLEFT) directie = DOWNRIGHT;
+		else if (directie == RIGHT) directie = LEFT;
+		else if (directie == UPRIGHT) directie = UPLEFT;
+		else if (directie == DOWNRIGHT) directie = DOWNLEFT;
 	}
 	void directieOpusaPerete()
 	{
-		if (direction == DOWNLEFT) direction = UPLEFT;
-		else if (direction == DOWNRIGHT) direction = UPRIGHT;
-		else if (direction == UPLEFT) direction = DOWNLEFT;
-		else direction = DOWNRIGHT;
+		if (directie == DOWNLEFT) directie = UPLEFT;
+		else if (directie == DOWNRIGHT) directie = UPRIGHT;
+		else if (directie == UPLEFT) directie = DOWNLEFT;
+		else directie = DOWNRIGHT;
 	}
 	inline int getX()
 	{
@@ -61,14 +59,13 @@ public:
 	{
 		return y;
 	}
-	inline eDir getDirection()
+	inline eDir getdirectie()
 	{
-		return direction;
+		return directie;
 	}
-
 	void Move()
 	{
-		switch (direction)
+		switch (directie)
 		{
 		case STOP:
 			break;
@@ -100,7 +97,7 @@ public:
 	}
 	bool directiedreapta()
 	{
-		switch (direction)
+		switch (directie)
 		{
 		case RIGHT:
 			return true;
@@ -113,33 +110,26 @@ public:
 			return false;
 
 		}
-		/*friend ostream & operator<<(ostream & o, cBall c)
-		{
-		o << "Ball [" << c.x << "," << c.y << "][" << c.direction << "]";
-		return o;
-		}
-		*/
 	}
 };
-class cPaddle
+class cPaleta
 {
 private:
 	int x, y;
 	int originalX, originalY;
 public:
-	cPaddle()
+	cPaleta()
 	{
 		x = y = 0;
 	}
-	cPaddle(int posX, int posY) : cPaddle()
+	cPaleta(int pozX, int pozY) : cPaleta()
 	{
-		originalX = posX;
-		originalY = posY;
-		x = posX;
-		y = posY;
+		originalX = pozX;
+		originalY = pozY;
+		x = pozX;
+		y = pozY;
 	}
-
-	void Reset()
+	void Reseteaza()
 	{
 		x = originalX;
 		y = originalY;
@@ -160,9 +150,7 @@ public:
 	{
 		y++;
 	}
-
 };
-//AI
 class AI
 {
 private:
@@ -173,15 +161,15 @@ public:
 	{
 		x = y = 0;
 	}
-	AI(int posX, int posY) : AI()
+	AI(int pozX, int pozY) : AI()
 	{
-		originalX = posX;
-		originalY = posY;
-		x = posX;
-		y = posY;
+		originalX = pozX;
+		originalY = pozY;
+		x = pozX;
+		y = pozY;
 	}
 
-	void Reset()
+	void Reseteaza()
 	{
 		x = originalX;
 		y = originalY;
@@ -204,17 +192,16 @@ public:
 	}
 
 };
-//AI game manager
 class aiGameManger
 {
 private:
-	int width, height;
-	int score1, score2;
+	int latime, inaltime;
+	int scor1, scor2;
 	char up1, down1, up2, down2;
 	bool quit;
 	int d;
-	cBall * ball;
-	cPaddle *player;
+	cMinge * minge;
+	cPaleta *jucator;
 	AI *ai;
 public:
 	aiGameManger(int w, int h, int di)
@@ -225,35 +212,27 @@ public:
 
 		down1 = 's';
 		d = di;
-		score1 = score2 = 0;
-		width = w;
-		height = h;
+		scor1 = scor2 = 0;
+		latime = w;
+		inaltime = h;
 
-		ball = new cBall(w / 2, h / 2);
-		player = new cPaddle(1, h / 2 - 2);
+		minge = new cMinge(w / 2, h / 2);
+		jucator = new cPaleta(1, h / 2 - 2);
 		ai = new AI(w - 2, h / 2 - 2);
 	}
-	~aiGameManger()
+	void ScorUpjucator(cPaleta * jucator)
 	{
-		delete ball, player, ai;
+		scor1++; 
+		minge->Reseteaza();
+		jucator->Reseteaza();
+		ai->Reseteaza();
 	}
-	void ScoreUpPlayer(cPaddle * player)
+	void ScorUpAi(AI *ai)
 	{
-
-		score1++;
-
-
-
-		ball->Reset();
-		player->Reset();
-		ai->Reset();
-	}
-	void ScoreUpAi(AI *ai)
-	{
-		score2++;
-		ball->Reset();
-		player->Reset();
-		ai->Reset();
+		scor2++;
+		minge->Reseteaza(ScoreUpjucator);
+		jucator->Reseteaza();
+		ai->Reseteaza();
 	}
 	void ClearScreen(int x, int y)
 	{
@@ -263,166 +242,125 @@ public:
 	void Draw()
 	{
 		ClearScreen(0, 0);
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
-		for (int i = 0; i < width + 2; i++)
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << endl;
-
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i < inaltime; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (int j = 0; j < latime; j++)
 			{
-
-
 				if (j == 0)
 					cout << "\xB2";
+				if (mingex == j && mingey == i)
+					cout << "O"; 
+				else if (jucator1x == j && jucator1y == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y == i)
+					cout << "\xDB"; 
 
-				if (ballx == j && bally == i)
-					cout << "O"; //ball
-				else if (player1x == j && player1y == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y == i)
-					cout << "\xDB"; //player2
+				else if (jucator1x == j && jucator1y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 4 == i)
+					cout << "\xDB"; 
 
-				else if (player1x == j && player1y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 4 == i)
-					cout << "\xDB"; //player1
-
-				else if (player2x == j && player2y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 4 == i)
-					cout << "\xDB"; //player1
+				else if (jucator2x == j && jucator2y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 4 == i)
+					cout << "\xDB"; 
 				else
 					cout << " ";
-
-				if (j == width - 1)
+				if (j == latime - 1)
 					cout << "\xB2";
 			}
 			cout << "\n";
 		}
-
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << "\n";
-
-		cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+		cout << "Score 1: " << scor1 << endl << "Score 2: " << scor2 << endl;
 	}
 	void Input()
 	{
-
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
 		if (_kbhit())
 		{
-			char current = _getch();
-			if (current == up1)
-				if (player1y > 0)
-					player->moveUp();
-			if (current == up2)
-				if (player2y > 0)
+			char curent = _getch();
+			if (curent == up1)
+				if (jucator1y > 0)
+					jucator->moveUp();
+			if (curent == up2)
+				if (jucator2y > 0)
 					ai->moveUp();
-			if (current == down1)
-				if (player1y + 5 < height)
-					player->moveDown();
-			if (current == down2)
-				if (player2y + 5 < height)
+			if (curent == down1)
+				if (jucator1y + 5 < inaltime)
+					jucator->moveDown();
+			if (curent == down2)
+				if (jucator2y + 5 < inaltime)
 					ai->moveDown();
-
-			if (ball->getDirection() == STOP)
-				ball->randomDirection();
-
-			if (current == 'q')
+			if (minge->getdirectie() == STOP)
+				minge->randomdirectie();
+			if (curent == 'q')
 				quit = true;
 		}
-		if (ballx > width / 4 * (4 - d) && ball->directiedreapta())
+		if (mingex > latime / 4 * (4 - d) && minge->directiedreapta())
 		{
 			unsigned int u = (unsigned int)((rand() % 3) + 1);
-			if (bally<player2y + u  && player2y>0) ai->moveUp();
-			else if (bally>player2y + u && player2y + 5<height) ai->moveDown();
+			if (mingey<jucator2y + u  && jucator2y>0) ai->moveUp();
+			else if (mingey>jucator2y + u && jucator2y + 5<inaltime) ai->moveDown();
 		}
-
 	}
 	void Logic()
 	{
 
-		ball->Move();
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
-		//ai
-		//if(bally<player2y+3  && player2y>0) ai->moveUp();
-		//else if(bally>player2y+3 && player2y+5<height) ai->moveDown();
-
-
-
-
-		//right wall
-		if (ballx == width - 1)
-			ScoreUpPlayer(player);
-		//left wall
-		if (ballx == 0)
-			ScoreUpAi(ai);
-		//bottom wall
-		//paleta stanga
-		//for (int i = 0; i < 5; i++)
-		if (ballx == player1x + 1)
-			if (bally == player1y || bally == player1y + 1)
-				ball->changeDirection(UPRIGHT);
-			else if (bally == player1y + 2)
-				ball->changeDirection(RIGHT);
-			else if (bally == player1y + 3 || bally == player1y + 4)ball->changeDirection(DOWNRIGHT);
-			//ball->changeDirection((eDir)((rand() % 3) + 4));
-
-			//right paddle
-			//for (int i = 0; i < 5; i++)
-			if (ballx == player2x - 1)
-				if (bally == player2y || bally == player2y + 1)
-					ball->changeDirection(UPLEFT);
-				else if (bally == player2y + 2)
-					ball->changeDirection(LEFT);
-				else if (bally == player2y + 3 || bally == player2y + 4) ball->changeDirection(DOWNLEFT);
-
-
-				//obstacole
-				if (ballx == width / 2 - 1 || ballx == width / 2 + 1)
-					if (bally<height / 3 || bally>(2 * height) / 3)
-						ball->directieOpusa();
-
-
-
-
-				//bottom wall
-				if (bally == height - 1)
-					ball->directieOpusaPerete();
-				//top wall
-				if (bally == 0)
-					ball->directieOpusaPerete();
-				//ai
-
+		minge->Move();
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
+		if (mingex == latime - 1)
+			ScorUpjucator(jucator);
+		if (mingex == 0)
+			ScorUpAi(ai);
+		if (mingex == jucator1x + 1)
+			if (mingey == jucator1y || mingey == jucator1y + 1)
+				minge->schimbaDirectia(UPRIGHT);
+			else if (mingey == jucator1y + 2)
+				minge->schimbaDirectia(RIGHT);
+			else if (mingey == jucator1y + 3 || mingey == jucator1y + 4)minge->schimbaDirectia(DOWNRIGHT);
+			if (mingex == jucator2x - 1)
+				if (mingey == jucator2y || mingey == jucator2y + 1)
+					minge->schimbaDirectia(UPLEFT);
+				else if (mingey == jucator2y + 2)
+					minge->schimbaDirectia(LEFT);
+				else if (mingey == jucator2y + 3 || mingey == jucator2y + 4) minge->schimbaDirectia(DOWNLEFT);
+				if (mingex == latime / 2 - 1 || mingex == latime / 2 + 1)
+					if (mingey<inaltime / 3 || mingey>(2 * inaltime) / 3)
+						minge->directieOpusa();
+				if (mingey == inaltime - 1)
+					minge->directieOpusaPerete();
+				if (mingey == 0)
+					minge->directieOpusaPerete();
 	}
 	void Run()
 	{
@@ -431,20 +369,19 @@ public:
 			Draw();
 			Input();
 			Logic();
-
 		}
 	}
 };
 class aiGameMangers
 {
 private:
-	int width, height;
-	int score1, score2;
+	int latime, inaltime;
+	int scor1, scor2;
 	char up1, down1, up2, down2;
 	bool quit;
 	int d;
-	cBall * ball;
-	cPaddle *player;
+	cMinge * minge;
+	cPaleta *jucator;
 	AI *ai;
 public:
 	aiGameMangers(int w, int h, int di)
@@ -455,35 +392,27 @@ public:
 
 		down1 = 's';
 		d = di;
-		score1 = score2 = 0;
-		width = w;
-		height = h;
+		scor1 = scor2 = 0;
+		latime = w;
+		inaltime = h;
 
-		ball = new cBall(w / 2, h / 2);
-		player = new cPaddle(1, h / 2 - 2);
+		minge = new cMinge(w / 2, h / 2);
+		jucator = new cPaleta(1, h / 2 - 2);
 		ai = new AI(w - 2, h / 2 - 2);
 	}
-	~aiGameMangers()
+	void ScorUpjucator(cPaleta * jucator)
 	{
-		delete ball, player, ai;
+		scor1++;
+		minge->Reseteaza();
+		jucator->Reseteaza();
+		ai->Reseteaza();
 	}
-	void ScoreUpPlayer(cPaddle * player)
+	void ScorUpAi(AI *ai)
 	{
-
-		score1++;
-
-
-
-		ball->Reset();
-		player->Reset();
-		ai->Reset();
-	}
-	void ScoreUpAi(AI *ai)
-	{
-		score2++;
-		ball->Reset();
-		player->Reset();
-		ai->Reset();
+		scor2++;
+		minge->Reseteaza();
+		jucator->Reseteaza();
+		ai->Reseteaza();
 	}
 	void ClearScreen(int x, int y)
 	{
@@ -493,170 +422,132 @@ public:
 	void Draw()
 	{
 		ClearScreen(0, 0);
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
-		for (int i = 0; i < width + 2; i++)
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << endl;
-
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i < inaltime; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (int j = 0; j < latime; j++)
 			{
-
-
 				if (j == 0)
 					cout << "\xB2";
 
-				if (ballx == j && bally == i)
-					cout << "O"; //ball
-				else if (j == width / 2 && i<height / 3)
+				if (mingex == j && mingey == i)
+					cout << "O"; 
+				else if (j == latime / 2 && i<inaltime / 3)
 					cout << "\xB2";
-				else if (j == width / 2 && i>(2 * height) / 3)
+				else if (j == latime / 2 && i>(2 * inaltime) / 3)
 					cout << "\xB2";
-				else if (player1x == j && player1y == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y == i)
-					cout << "\xDB"; //player2
+				else if (jucator1x == j && jucator1y == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y == i)
+					cout << "\xDB"; 
 
-				else if (player1x == j && player1y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 4 == i)
-					cout << "\xDB"; //player1
+				else if (jucator1x == j && jucator1y + 1 == i)
+					cout << "\xDB";
+				else if (jucator1x == j && jucator1y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 4 == i)
+					cout << "\xDB"; 
 
-				else if (player2x == j && player2y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 4 == i)
-					cout << "\xDB"; //player1
-				else
+				else if (jucator2x == j && jucator2y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 4 == i)
+					cout << "\xDB"; 
 					cout << " ";
 
-				if (j == width - 1)
+				if (j == latime - 1)
 					cout << "\xB2";
 			}
 			cout << "\n";
 		}
-
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << "\n";
-
-		cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+		cout << "Score 1: " << scor1 << endl << "Score 2: " << scor2 << endl;
 	}
 	void Input()
 	{
-
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
 		if (_kbhit())
 		{
-			char current = _getch();
-			if (current == up1)
-				if (player1y > 0)
-					player->moveUp();
-			if (current == up2)
-				if (player2y > 0)
+			char curent = _getch();
+			if (curent == up1)
+				if (jucator1y > 0)
+					jucator->moveUp();
+			if (curent == up2)
+				if (jucator2y > 0)
 					ai->moveUp();
-			if (current == down1)
-				if (player1y + 5 < height)
-					player->moveDown();
-			if (current == down2)
-				if (player2y + 5 < height)
+			if (curent == down1)
+				if (jucator1y + 5 < inaltime)
+					jucator->moveDown();
+			if (curent == down2)
+				if (jucator2y + 5 < inaltime)
 					ai->moveDown();
 
-			if (ball->getDirection() == STOP)
-				ball->randomDirection();
+			if (minge->getdirectie() == STOP)
+				minge->randomdirectie();
 
-			if (current == 'q')
+			if (curent == 'q')
 				quit = true;
 		}
-		if (ballx > width / 4 * (4 - d) && ball->directiedreapta())
+		if (mingex > latime / 4 * (4 - d) && minge->directiedreapta())
 		{
 			unsigned int u = (unsigned int)((rand() % 3) + 1);
-			if (bally<player2y + u  && player2y>0) ai->moveUp();
-			else if (bally>player2y + u && player2y + 5<height) ai->moveDown();
+			if (mingey<jucator2y + u  && jucator2y>0) ai->moveUp();
+			else if (mingey>jucator2y + u && jucator2y + 5<inaltime) ai->moveDown();
 		}
 
 	}
 	void Logic()
 	{
-
-		ball->Move();
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player->getX();
-		int player2x = ai->getX();
-		int player1y = player->getY();
-		int player2y = ai->getY();
-
-		//ai
-		//if(bally<player2y+3  && player2y>0) ai->moveUp();
-		//else if(bally>player2y+3 && player2y+5<height) ai->moveDown();
-
-
-
-
-		//right wall
-		if (ballx == width - 1)
-			ScoreUpPlayer(player);
-		//left wall
-		if (ballx == 0)
-			ScoreUpAi(ai);
-		//bottom wall
-		//paleta stanga
-		//for (int i = 0; i < 5; i++)
-		if (ballx == player1x + 1)
-			if (bally == player1y || bally == player1y + 1)
-				ball->changeDirection(UPRIGHT);
-			else if (bally == player1y + 2)
-				ball->changeDirection(RIGHT);
-			else if (bally == player1y + 3 || bally == player1y + 4)ball->changeDirection(DOWNRIGHT);
-			//ball->changeDirection((eDir)((rand() % 3) + 4));
-
-			//right paddle
-			//for (int i = 0; i < 5; i++)
-			if (ballx == player2x - 1)
-				if (bally == player2y || bally == player2y + 1)
-					ball->changeDirection(UPLEFT);
-				else if (bally == player2y + 2)
-					ball->changeDirection(LEFT);
-				else if (bally == player2y + 3 || bally == player2y + 4) ball->changeDirection(DOWNLEFT);
-
-
-				//obstacole
-				if (ballx == width / 2 - 1 || ballx == width / 2 + 1)
-					if (bally<height / 3 || bally>(2 * height) / 3)
-						ball->directieOpusa();
-
-
-
-
-				//bottom wall
-				if (bally == height - 1)
-					ball->directieOpusaPerete();
-				//top wall
-				if (bally == 0)
-					ball->directieOpusaPerete();
-				//ai
-
+		minge->Move();
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator->getX();
+		int jucator2x = ai->getX();
+		int jucator1y = jucator->getY();
+		int jucator2y = ai->getY();
+		if (mingex == latime - 1)
+			ScorUpjucator(jucator);
+		if (mingex == 0)
+			ScorUpAi(ai);
+		if (mingex == jucator1x + 1)
+			if (mingey == jucator1y || mingey == jucator1y + 1)
+				minge->schimbaDirectia(UPRIGHT);
+			else if (mingey == jucator1y + 2)
+				minge->schimbaDirectia(RIGHT);
+			else if (mingey == jucator1y + 3 || mingey == jucator1y + 4)minge->schimbaDirectia(DOWNRIGHT);
+			if (mingex == jucator2x - 1)
+				if (mingey == jucator2y || mingey == jucator2y + 1)
+					minge->schimbaDirectia(UPLEFT);
+				else if (mingey == jucator2y + 2)
+					minge->schimbaDirectia(LEFT);
+				else if (mingey == jucator2y + 3 || mingey == jucator2y + 4) minge->schimbaDirectia(DOWNLEFT);
+				if (mingex == latime / 2 - 1 || mingex == latime / 2 + 1)
+					if (mingey<inaltime / 3 || mingey>(2 * inaltime) / 3)
+						minge->directieOpusa();
+				if (mingey == inaltime - 1)
+					minge->directieOpusaPerete();
+				if (mingey == 0)
+					minge->directieOpusaPerete();
 	}
 	void Run()
 	{
@@ -665,26 +556,19 @@ public:
 			Draw();
 			Input();
 			Logic();
-
 		}
 	}
 };
-
-
-
-
-
-// 2 players game manager
 class cGameMangers
 {
 private:
-	int width, height;
-	int score1, score2;
+	int latime, inaltime;
+	int scor1, scor2;
 	char up1, down1, up2, down2;
 	bool quit;
-	cBall * ball;
-	cPaddle *player1;
-	cPaddle *player2;
+	cMinge * minge;
+	cPaleta *jucator1;
+	cPaleta *jucator2;
 public:
 	cGameMangers(int w, int h)
 	{
@@ -694,27 +578,22 @@ public:
 		up2 = 'i';
 		down1 = 's';
 		down2 = 'k';
-		score1 = score2 = 0;
-		width = w;
-		height = h;
-		ball = new cBall(w / 2, h / 2);
-		player1 = new cPaddle(1, h / 2 - 2);
-		player2 = new cPaddle(w - 2, h / 2 - 2);
+		scor1 = scor2 = 0;
+		latime = w;
+		inaltime = h;
+		minge = new cMinge(w / 2, h / 2);
+		jucator1 = new cPaleta(1, h / 2 - 2);
+		jucator2 = new cPaleta(w - 2, h / 2 - 2);
 	}
-	~cGameMangers()
+	void ScoreUp(cPaleta * jucator)
 	{
-		delete ball, player1, player2;
-	}
-	void ScoreUp(cPaddle * player)
-	{
-		if (player == player1)
-			score1++;
-		else if (player == player2)
-			score2++;
-
-		ball->Reset();
-		player1->Reset();
-		player2->Reset();
+		if (jucator == jucator1)
+			scor1++;
+		else if (jucator == jucator2)
+			scor2++;
+		minge->Reseteaza();
+		jucator1->Reseteaza();
+		jucator2->Reseteaza();
 	}
 	void ClearScreen(int x, int y)
 	{
@@ -724,145 +603,122 @@ public:
 	void Draw()
 	{
 		ClearScreen(0, 0);
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << endl;
-
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i < inaltime; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (int j = 0; j < latime; j++)
 			{
-				int ballx = ball->getX();
-				int bally = ball->getY();
-				int player1x = player1->getX();
-				int player2x = player2->getX();
-				int player1y = player1->getY();
-				int player2y = player2->getY();
+				int mingex = minge->getX();
+				int mingey = minge->getY();
+				int jucator1x = jucator1->getX();
+				int jucator2x = jucator2->getX();
+				int jucator1y = jucator1->getY();
+				int jucator2y = jucator2->getY();
 
 				if (j == 0)
 					cout << "\xB2";
 
-				if (ballx == j && bally == i)
-					cout << "O"; //ball
-				else if (player1x == j && player1y == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y == i)
-					cout << "\xDB"; //player2
+				if (mingex == j && mingey == i)
+					cout << "O";
+				else if (jucator1x == j && jucator1y == i)
+					cout << "\xDB";
+				else if (jucator2x == j && jucator2y == i)
+					cout << "\xDB"; 
 
-				else if (player1x == j && player1y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 3 == i)
-					cout << "\xDB"; //player1
+				else if (jucator1x == j && jucator1y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 3 == i)
+					cout << "\xDB"; 
 
-				else if (player2x == j && player2y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 3 == i)
-					cout << "\xDB"; //player1
+				else if (jucator2x == j && jucator2y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 3 == i)
+					cout << "\xDB"; 
 				else
 					cout << " ";
 
-				if (j == width - 1)
+				if (j == latime - 1)
 					cout << "\xB2";
 			}
 			cout << endl;
 		}
 
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << endl;
-
-		cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+		cout << "Score 1: " << scor1 << endl << "Score 2: " << scor2 << endl;
 	}
 	void Input()
 	{
-
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player1->getX();
-		int player2x = player2->getX();
-		int player1y = player1->getY();
-		int player2y = player2->getY();
-
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator1->getX();
+		int jucator2x = jucator2->getX();
+		int jucator1y = jucator1->getY();
+		int jucator2y = jucator2->getY();
 		if (_kbhit())
 		{
-			char current = _getch();
-			if (current == up1)
-				if (player1y > 0)
-					player1->moveUp();
-			if (current == up2)
-				if (player2y > 0)
-					player2->moveUp();
-			if (current == down1)
-				if (player1y + 5 < height)
-					player1->moveDown();
-			if (current == down2)
-				if (player2y + 5 < height)
-					player2->moveDown();
+			char curent = _getch();
+			if (curent == up1)
+				if (jucator1y > 0)
+					jucator1->moveUp();
+			if (curent == up2)
+				if (jucator2y > 0)
+					jucator2->moveUp();
+			if (curent == down1)
+				if (jucator1y + 5 < inaltime)
+					jucator1->moveDown();
+			if (curent == down2)
+				if (jucator2y + 5 < inaltime)
+					jucator2->moveDown();
 
-			if (ball->getDirection() == STOP)
-				ball->randomDirection();
+			if (minge->getdirectie() == STOP)
+				minge->randomdirectie();
 
-			if (current == 'q')
+			if (curent == 'q')
 				quit = true;
 		}
 	}
 	void Logic()
 	{
-		int ballix = ball->getX();
-		int balliy = ball->getY();
-		ball->Move();
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player1->getX();
-		int player2x = player2->getX();
-		int player1y = player1->getY();
-		int player2y = player2->getY();
-
-		//right wall
-		if (ballx == width - 1)
-			ScoreUp(player1);
-		//left wall
-		if (ballx == 0)
-			ScoreUp(player2);
-		//bottom wall
-		//paleta stanga
-		//for (int i = 0; i < 5; i++)
-		if (ballx == player1x + 1)
-			if (bally == player1y || bally == player1y + 1)
-				ball->changeDirection(UPRIGHT);
-			else if (balliy == player1y + 2)
-				ball->changeDirection(RIGHT);
-			else if (bally == player1y + 3 || bally == player1y + 4)ball->changeDirection(DOWNRIGHT);
-			//ball->changeDirection((eDir)((rand() % 3) + 4));
-
-			//right paddle
-			//for (int i = 0; i < 5; i++)
-			if (ballx == player2x - 1)
-				if (bally == player2y || bally == player2y + 1)
-					ball->changeDirection(UPLEFT);
-				else if (bally == player2y + 2)
-					ball->changeDirection(LEFT);
-				else if (bally == player2y + 3 || bally == player2y + 4) ball->changeDirection(DOWNLEFT);
-
-
-				//obstacole
-				if (ballx == width / 2 - 1 || ballx == width / 2 + 1)
-					if (bally<height / 3 || bally>(2 * height) / 3)
-						ball->directieOpusa();
-
-
-
-
-				//bottom wall
-				if (bally == height - 1)
-					ball->directieOpusaPerete();
-				//top wall
-				if (bally == 0)
-					ball->directieOpusaPerete();
+		int mingeix = minge->getX();
+		int mingeiy = minge->getY();
+		minge->Move();
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator1->getX();
+		int jucator2x = jucator2->getX();
+		int jucator1y = jucator1->getY();
+		int jucator2y = jucator2->getY();
+		if (mingex == latime - 1)
+			ScoreUp(jucator1);
+		if (mingex == 0)
+			ScoreUp(jucator2);
+		if (mingex == jucator1x + 1)
+			if (mingey == jucator1y || mingey == jucator1y + 1)
+				minge->schimbaDirectia(UPRIGHT);
+			else if (mingeiy == jucator1y + 2)
+				minge->schimbaDirectia(RIGHT);
+			else if (mingey == jucator1y + 3 || mingey == jucator1y + 4)minge->schimbaDirectia(DOWNRIGHT);
+			if (mingex == jucator2x - 1)
+				if (mingey == jucator2y || mingey == jucator2y + 1)
+					minge->schimbaDirectia(UPLEFT);
+				else if (mingey == jucator2y + 2)
+					minge->schimbaDirectia(LEFT);
+				else if (mingey == jucator2y + 3 || mingey == jucator2y + 4) minge->schimbaDirectia(DOWNLEFT);
+				if (mingex == latime / 2 - 1 || mingex == latime / 2 + 1)
+					if (mingey<inaltime / 3 || mingey>(2 * inaltime) / 3)
+						minge->directieOpusa();
+				if (mingey == inaltime - 1)
+					minge->directieOpusaPerete();
+				if (mingey == 0)
+					minge->directieOpusaPerete();
 	}
 	void Run()
 	{
@@ -871,20 +727,19 @@ public:
 			Draw();
 			Input();
 			Logic();
-
 		}
 	}
 };
 class cGameManger
 {
 private:
-	int width, height;
-	int score1, score2;
+	int latime, inaltime;
+	int scor1, scor2;
 	char up1, down1, up2, down2;
 	bool quit;
-	cBall * ball;
-	cPaddle *player1;
-	cPaddle *player2;
+	cMinge * minge;
+	cPaleta *jucator1;
+	cPaleta *jucator2;
 public:
 	cGameManger(int w, int h)
 	{
@@ -894,27 +749,23 @@ public:
 		up2 = 'i';
 		down1 = 's';
 		down2 = 'k';
-		score1 = score2 = 0;
-		width = w;
-		height = h;
-		ball = new cBall(w / 2, h / 2);
-		player1 = new cPaddle(1, h / 2 - 2);
-		player2 = new cPaddle(w - 2, h / 2 - 2);
+		scor1 = scor2 = 0;
+		latime = w;
+		inaltime = h;
+		minge = new cMinge(w / 2, h / 2);
+		jucator1 = new cPaleta(1, h / 2 - 2);
+		jucator2 = new cPaleta(w - 2, h / 2 - 2);
 	}
-	~cGameManger()
+	void ScoreUp(cPaleta * jucator)
 	{
-		delete ball, player1, player2;
-	}
-	void ScoreUp(cPaddle * player)
-	{
-		if (player == player1)
-			score1++;
-		else if (player == player2)
-			score2++;
+		if (jucator == jucator1)
+			scor1++;
+		else if (jucator == jucator2)
+			scor2++;
 
-		ball->Reset();
-		player1->Reset();
-		player2->Reset();
+		minge->Reseteaza();
+		jucator1->Reseteaza();
+		jucator2->Reseteaza();
 	}
 	void ClearScreen(int x, int y)
 	{
@@ -924,155 +775,133 @@ public:
 	void Draw()
 	{
 		ClearScreen(0, 0);
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player1->getX();
-		int player2x = player2->getX();
-		int player1y = player1->getY();
-		int player2y = player2->getY();
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator1->getX();
+		int jucator2x = jucator2->getX();
+		int jucator1y = jucator1->getY();
+		int jucator2y = jucator2->getY();
 
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << endl;
 
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i < inaltime; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (int j = 0; j < latime; j++)
 			{
 
 
 				if (j == 0)
 					cout << "\xB2";
 
-				if (ballx == j && bally == i)
-					cout << "O"; //ball
-				else if (j == width / 2 && i<height / 3)
+				if (mingex == j && mingey == i)
+					cout << "O"; 
+				else if (j == latime / 2 && i<inaltime / 3)
 					cout << "\xB2";
-				else if (j == width / 2 && i>(2 * height) / 3)
+				else if (j == latime / 2 && i>(2 * inaltime) / 3)
 					cout << "\xB2";
-				else if (player1x == j && player1y == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y == i)
-					cout << "\xDB"; //player2
+				else if (jucator1x == j && jucator1y == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y == i)
+					cout << "\xDB"; 
 
-				else if (player1x == j && player1y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player1x == j && player1y + 4 == i)
-					cout << "\xDB"; //player1
+				else if (jucator1x == j && jucator1y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 2 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator1x == j && jucator1y + 4 == i)
+					cout << "\xDB";
 
-				else if (player2x == j && player2y + 1 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 2 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 3 == i)
-					cout << "\xDB"; //player1
-				else if (player2x == j && player2y + 4 == i)
-					cout << "\xDB"; //player1
+				else if (jucator2x == j && jucator2y + 1 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 2 == i)
+					cout << "\xDB";
+				else if (jucator2x == j && jucator2y + 3 == i)
+					cout << "\xDB"; 
+				else if (jucator2x == j && jucator2y + 4 == i)
+					cout << "\xDB"; 
 				else
 					cout << " ";
 
-				if (j == width - 1)
+				if (j == latime - 1)
 					cout << "\xB2";
 			}
 			cout << "\n";
 		}
-
-		for (int i = 0; i < width + 2; i++)
+		for (int i = 0; i < latime + 2; i++)
 			cout << "\xB2";
 		cout << "\n";
 
-		cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+		cout << "Score 1: " << scor1 << endl << "Score 2: " << scor2 << endl;
 	}
 	void Input()
 	{
-
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player1->getX();
-		int player2x = player2->getX();
-		int player1y = player1->getY();
-		int player2y = player2->getY();
-
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator1->getX();
+		int jucator2x = jucator2->getX();
+		int jucator1y = jucator1->getY();
+		int jucator2y = jucator2->getY();
 		if (_kbhit())
 		{
-			char current = _getch();
-			if (current == up1)
-				if (player1y > 0)
-					player1->moveUp();
-			if (current == up2)
-				if (player2y > 0)
-					player2->moveUp();
-			if (current == down1)
-				if (player1y + 5 < height)
-					player1->moveDown();
-			if (current == down2)
-				if (player2y + 5 < height)
-					player2->moveDown();
+			char curent = _getch();
+			if (curent == up1)
+				if (jucator1y > 0)
+					jucator1->moveUp();
+			if (curent == up2)
+				if (jucator2y > 0)
+					jucator2->moveUp();
+			if (curent == down1)
+				if (jucator1y + 5 < inaltime)
+					jucator1->moveDown();
+			if (curent == down2)
+				if (jucator2y + 5 < inaltime)
+					jucator2->moveDown();
 
-			if (ball->getDirection() == STOP)
-				ball->randomDirection();
+			if (minge->getdirectie() == STOP)
+				minge->randomdirectie();
 
-			if (current == 'q')
+			if (curent == 'q')
 				quit = true;
 		}
 	}
 	void Logic()
 	{
-		int ballix = ball->getX();
-		int balliy = ball->getY();
-		ball->Move();
-		int ballx = ball->getX();
-		int bally = ball->getY();
-		int player1x = player1->getX();
-		int player2x = player2->getX();
-		int player1y = player1->getY();
-		int player2y = player2->getY();
-
-		//right wall
-		if (ballx == width - 1)
-			ScoreUp(player1);
-		//left wall
-		if (ballx == 0)
-			ScoreUp(player2);
-		//bottom wall
-		//paleta stanga
-		//for (int i = 0; i < 5; i++)
-		if (ballx == player1x + 1)
-			if (bally == player1y || bally == player1y + 1)
-				ball->changeDirection(UPRIGHT);
-			else if (balliy == player1y + 2)
-				ball->changeDirection(RIGHT);
-			else if (bally == player1y + 3 || bally == player1y + 4)ball->changeDirection(DOWNRIGHT);
-			//ball->changeDirection((eDir)((rand() % 3) + 4));
-
-			//right paddle
-			//for (int i = 0; i < 5; i++)
-			if (ballx == player2x - 1)
-				if (bally == player2y || bally == player2y + 1)
-					ball->changeDirection(UPLEFT);
-				else if (bally == player2y + 2)
-					ball->changeDirection(LEFT);
-				else if (bally == player2y + 3 || bally == player2y + 4) ball->changeDirection(DOWNLEFT);
-
-
-				//obstacole
-				if (ballx == width / 2 - 1 || ballx == width / 2 + 1)
-					if (bally<height / 3 || bally>(2 * height) / 3)
-						ball->directieOpusa();
-
-
-
-
-				//bottom wall
-				if (bally == height - 1)
-					ball->directieOpusaPerete();
-				//top wall
-				if (bally == 0)
-					ball->directieOpusaPerete();
+		int mingeix = minge->getX();
+		int mingeiy = minge->getY();
+		minge->Move();
+		int mingex = minge->getX();
+		int mingey = minge->getY();
+		int jucator1x = jucator1->getX();
+		int jucator2x = jucator2->getX();
+		int jucator1y = jucator1->getY();
+		int jucator2y = jucator2->getY();
+		if (mingex == latime - 1)
+			ScoreUp(jucator1);
+		if (mingex == 0)
+			ScoreUp(jucator2);
+		if (mingex == jucator1x + 1)
+			if (mingey == jucator1y || mingey == jucator1y + 1)
+				minge->schimbaDirectia(UPRIGHT);
+			else if (mingeiy == jucator1y + 2)
+				minge->schimbaDirectia(RIGHT);
+			else if (mingey == jucator1y + 3 || mingey == jucator1y + 4)minge->schimbaDirectia(DOWNRIGHT);
+			if (mingex == jucator2x - 1)
+				if (mingey == jucator2y || mingey == jucator2y + 1)
+					minge->schimbaDirectia(UPLEFT);
+				else if (mingey == jucator2y + 2)
+					minge->schimbaDirectia(LEFT);
+				else if (mingey == jucator2y + 3 || mingey == jucator2y + 4) minge->schimbaDirectia(DOWNLEFT);
+				if (mingex == latime / 2 - 1 || mingex == latime / 2 + 1)
+					if (mingey<inaltime / 3 || mingey>(2 * inaltime) / 3)
+						minge->directieOpusa();
+				if (mingey == inaltime - 1)
+					minge->directieOpusaPerete();
+				if (mingey == 0)
+					minge->directieOpusaPerete();
 	}
 	void Run()
 	{
@@ -1081,29 +910,27 @@ public:
 			Draw();
 			Input();
 			Logic();
-
 		}
 	}
 };
-
 void main()
 {
 	int y,z,q;
-	cout << "Select type of game:" << endl;
+	cout << "Tipul jocului:" << endl;
 	cout << "1.Normal" << endl;
-	cout << "2.Obstacle" << endl;
+	cout << "2.Obstacol" << endl;
 	cin >> z;
 	if (z == 1)
 	{
-		cout << "1.Player vs Player" << endl;
+		cout << "1.jucator vs jucator" << endl;
 		cout << "2.Vs Computer" << endl;
 		cin >> y;
 		if (y == 2)
 		{
 			cout << "Nivel de dificultate:" << endl;
-			cout << "1.Easy" << endl;
+			cout << "1.Usor" << endl;
 			cout << "2.Normal" << endl;
-			cout << "3.Hard" << endl;
+			cout << "3.Greu" << endl;
 			cin >> q;
 		}
 		if (y == 1)
@@ -1121,15 +948,15 @@ void main()
 	}
 	else if (z==2)
 	{
-		cout << "1.Player vs Player" << endl;
+		cout << "1.jucator vs jucator" << endl;
 		cout << "2.Vs Computer" << endl;
 		cin >> y;
 		if (y == 2)
 		{
 			cout << "Nivel de dificultate:" << endl;
-			cout << "1.Easy" << endl;
+			cout << "1.Usor" << endl;
 			cout << "2.Normal" << endl;
-			cout << "3.Hard" << endl;
+			cout << "3.Greu" << endl;
 			cin >> q;
 		}
 		if (y == 1)
