@@ -17,16 +17,21 @@ void ShowConsoleCursor()
     cursorInfo.bVisible = 0;
     SetConsoleCursorInfo(out,&cursorInfo);
 }
-enum eDir { STOP = 0, LEFT = 1, UPLEFT = 2, DOWNLEFT = 3, RIGHT = 4, UPRIGHT = 5, DOWNRIGHT = 6 };
-class cBall
+void ClearScreen(int x, int y)
+{
+    COORD p = {x,y};
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
+}
+enum directions { STOP = 0, LEFT = 1, UPLEFT = 2, DOWNLEFT = 3, RIGHT = 4, UPRIGHT = 5, DOWNRIGHT = 6 };
+class Ball
 {
 private:
     int x, y;
     int originalX, originalY;
-    eDir direction;
+    directions direction;
 public:
 
-    cBall(int posX, int posY)
+    Ball(int posX, int posY)
     {
         originalX = posX;
         originalY = posY;
@@ -40,13 +45,13 @@ public:
         y = originalY;
         direction = STOP;
     }
-    void changeDirection(eDir d)
+    void changdirectionsection(directions d)
     {
         direction = d;
     }
-    void randomDirection()
+    void directieRandom()
     {
-        direction = (eDir)((rand() % 6) + 1);
+        direction = (directions)((rand() % 6) + 1);
     }
     void directieOpusa()
     {
@@ -65,15 +70,15 @@ public:
         else if(direction==UPLEFT) direction=DOWNLEFT;
         else direction=DOWNRIGHT;
     }
-    inline int getX()
+    int getX()
     {
         return x;
     }
-    inline int getY()
+    int getY()
     {
         return y;
     }
-    inline eDir getDirection()
+    directions getDirection()
     {
         return direction;
     }
@@ -125,25 +130,20 @@ public:
             return false;
 
         }
-        /*friend ostream & operator<<(ostream & o, cBall c)
-        {
-        	o << "Ball [" << c.x << "," << c.y << "][" << c.direction << "]";
-        	return o;
-        }
-        */
+
     }
 };
-class cPaddle
+class Paddle
 {
 private:
     int x, y;
     int originalX, originalY;
 public:
-    cPaddle()
+    Paddle()
     {
         x = y = 0;
     }
-    cPaddle(int posX, int posY) : cPaddle()
+    Paddle(int posX, int posY) : Paddle()
     {
         originalX = posX;
         originalY = posY;
@@ -156,19 +156,19 @@ public:
         x = originalX;
         y = originalY;
     }
-    inline int getX()
+    int getX()
     {
         return x;
     }
-    inline int getY()
+    int getY()
     {
         return y;
     }
-    inline void moveUp()
+    void moveUp()
     {
         y--;
     }
-    inline void moveDown()
+    void moveDown()
     {
         y++;
     }
@@ -198,19 +198,19 @@ public:
         x = originalX;
         y = originalY;
     }
-    inline int getX()
+    int getX()
     {
         return x;
     }
-    inline int getY()
+    int getY()
     {
         return y;
     }
-    inline void moveUp()
+    void moveUp()
     {
         y--;
     }
-    inline void moveDown()
+    void moveDown()
     {
         y++;
     }
@@ -220,37 +220,47 @@ public:
 class aiGameManger
 {
 private:
-    int width, height,dif=1,obs=0;
+    int width, height,dif=4,obs=0,q=4;
     int score1, score2;
-    char up1, down1, up2, down2;
-    bool quit;
+    char up1, down1,res;
+    bool quit,reset;
     int d;
-    cBall * ball;
-    cPaddle *player;
+    Ball * ball;
+    Paddle *player;
     AI *ai;
 public:
     aiGameManger(int w, int h,int di,int ob)
     {
-        srand(time(NULL));
+        //srand(time(NULL));
         quit = false;
+        reset=false;
         up1 = 'w';
-
         down1 = 's';
+        res='r';
         d=di;
         obs=ob;
         score1 = score2 = 0;
         width = w;
         height = h;
+        if(d==1) q=3;
+        else if(d==2) q=5;
+        else q=6;
 
-        ball = new cBall(w / 2, h / 2);
-        player = new cPaddle(1, h / 2 - 2);
+
+
+
+        ball = new Ball(w / 2, h / 2);
+        player = new Paddle(1, h / 2 - 2);
         ai = new AI(w - 2, h / 2 - 2);
     }
-    ~aiGameManger()
+    void Reset()
     {
-        delete ball, player, ai;
+        ball->Reset();
+        ball->changdirectionsection(STOP);
+        player->Reset();
+        ai->Reset();
     }
-    void ScoreUpPlayer(cPaddle * player)
+    void ScoreUpPlayer(Paddle * player)
     {
 
         score1++;
@@ -268,11 +278,7 @@ public:
         player->Reset();
         ai->Reset();
     }
-    void ClearScreen(int x, int y)
-    {
-        COORD p = {x,y};
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
-    }
+
     void Draw()
     {
         ShowConsoleCursor();
@@ -288,7 +294,7 @@ public:
 
         for (int i = 0; i < width+2; i++)
             cout << "\xB2";
-        cout << endl;
+        cout << "\n";
 
         for (int i = 0; i < height; i++)
         {
@@ -383,7 +389,7 @@ public:
             cout << "\xB2";
         cout << "\n";
         SetColor(10);
-        cout << "Score Player: " << score1 << endl << "Score AI: " << score2 << endl;
+        cout << "Score Player: " << score1 << "\n" << "Score AI: " << score2 << "\n";
     }
     void Input()
     {
@@ -401,23 +407,22 @@ public:
             if (current == up1)
                 if (player1y > 0)
                     player->moveUp();
-            if (current == up2)
-                if (player2y > 0)
-                    ai->moveUp();
+
+
             if (current == down1)
                 if (player1y + 5 < height)
                     player->moveDown();
-            if (current == down2)
-                if (player2y + 5 < height)
-                    ai->moveDown();
+
 
             if (ball->getDirection() == STOP)
-                ball->randomDirection();
+                ball->directieRandom();
 
             if (current == 'q')
                 quit = true;
+            if (current == 'r')
+                Reset();
         }
-        if(ballx > width/4*(4-d) && ball->directiedreapta() && dif%5!=0)
+        if(ballx > width/4*(4-d) && ball->directiedreapta() && dif%q!=0)
         {
             unsigned int u= (unsigned int)((rand() % 3) +1);
             if(bally<player2y+u  && player2y>0) ai->moveUp();
@@ -428,7 +433,7 @@ public:
     void Logic()
     {
 
-        ball->Move();
+
         int ballx = ball->getX();
         int bally = ball->getY();
         int player1x = player->getX();
@@ -436,33 +441,23 @@ public:
         int player1y = player->getY();
         int player2y = ai->getY();
 
-        //ai
-        //if(bally<player2y+3  && player2y>0) ai->moveUp();
-        //else if(bally>player2y+3 && player2y+5<height) ai->moveDown();
-
-
-
-
-
-        //bottom wall
-        //paleta stanga
-        //for (int i = 0; i < 5; i++)
+        //left paddle
         if (ballx == player1x + 1)
             if (bally == player1y || bally==player1y+1)
-                ball->changeDirection(UPRIGHT);
+                ball->changdirectionsection(UPRIGHT);
             else if(bally==player1y+2)
-                ball->changeDirection(RIGHT);
-            else if(bally==player1y+3||bally==player1y+4)ball->changeDirection(DOWNRIGHT);
-        //ball->changeDirection((eDir)((rand() % 3) + 4));
+                ball->changdirectionsection(RIGHT);
+            else if(bally==player1y+3||bally==player1y+4)ball->changdirectionsection(DOWNRIGHT);
+
 
         //right paddle
-        //for (int i = 0; i < 5; i++)
+
         if (ballx == player2x - 1)
             if (bally == player2y || bally==player2y+1 )
-                ball->changeDirection(UPLEFT);
+                ball->changdirectionsection(UPLEFT);
             else if(bally==player2y+2)
-                ball->changeDirection(LEFT);
-            else if(bally==player2y+3||bally==player2y+4) ball->changeDirection(DOWNLEFT);
+                ball->changdirectionsection(LEFT);
+            else if(bally==player2y+3||bally==player2y+4) ball->changdirectionsection(DOWNLEFT);
 
         //right wall
         if (ballx == width - 1)
@@ -490,8 +485,8 @@ public:
         //top wall
         if (bally == 0)
             ball->directieOpusaPerete();
-        //ai
 
+        ball->Move();
     }
     void Run()
     {
@@ -513,11 +508,11 @@ class cGameManger
 private:
     int width, height;
     int score1, score2,obs;
-    char up1, down1, up2, down2;
+    char up1, down1, up2, down2,res;
     bool quit;
-    cBall * ball;
-    cPaddle *player1;
-    cPaddle *player2;
+    Ball * ball;
+    Paddle *player1;
+    Paddle *player2;
 public:
     cGameManger(int w, int h,int ob)
     {
@@ -528,18 +523,22 @@ public:
         up2 = 'i';
         down1 = 's';
         down2 = 'k';
+        res='r';
         score1 = score2 = 0;
         width = w;
         height = h;
-        ball = new cBall(w / 2, h / 2);
-        player1 = new cPaddle(1, h / 2 - 2);
-        player2 = new cPaddle(w - 2, h / 2 - 2);
+        ball = new Ball(w / 2, h / 2);
+        player1 = new Paddle(1, h / 2 - 2);
+        player2 = new Paddle(w - 2, h / 2 - 2);
     }
-    ~cGameManger()
+    void Reset()
     {
-        delete ball, player1, player2;
+        ball->Reset();
+        ball->changdirectionsection(STOP);
+        player1->Reset();
+        player2->Reset();
     }
-    void ScoreUp(cPaddle * player)
+    void ScoreUp(Paddle * player)
     {
         if (player == player1)
             score1++;
@@ -549,11 +548,6 @@ public:
         ball->Reset();
         player1->Reset();
         player2->Reset();
-    }
-    void ClearScreen(int x, int y)
-    {
-        COORD p = {x,y};
-        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
     }
     void Draw()
     {
@@ -570,7 +564,7 @@ public:
 
         for (int i = 0; i < width+2; i++)
             cout << "\xB2";
-        cout << endl;
+        cout << "\n";
 
         for (int i = 0; i < height; i++)
         {
@@ -664,7 +658,7 @@ public:
             cout << "\xB2";
         cout << "\n";
         SetColor(10);
-        cout << "Score Player 1: " << score1 << endl << "Score Player 2: " << score2 << endl;
+        cout << "Score Player 1: " << score1 << "\n" << "Score Player 2: " << score2 << "\n";
     }
     void Input()
     {
@@ -693,17 +687,19 @@ public:
                     player2->moveDown();
 
             if (ball->getDirection() == STOP)
-                ball->randomDirection();
+                ball->directieRandom();
 
             if (current == 'q')
                 quit = true;
+            if(current =='r')
+                Reset();
         }
     }
     void Logic()
     {
         int ballix = ball->getX();
         int balliy = ball->getY();
-        ball->Move();
+
         int ballx = ball->getX();
         int bally = ball->getY();
         int player1x = player1->getX();
@@ -717,20 +713,20 @@ public:
         //for (int i = 0; i < 5; i++)
         if (ballx == player1x + 1)
             if (bally == player1y || bally==player1y+1)
-                ball->changeDirection(UPRIGHT);
+                ball->changdirectionsection(UPRIGHT);
             else if(balliy==player1y+2)
-                ball->changeDirection(RIGHT);
-            else if(bally==player1y+3||bally==player1y+4)ball->changeDirection(DOWNRIGHT);
-        //ball->changeDirection((eDir)((rand() % 3) + 4));
+                ball->changdirectionsection(RIGHT);
+            else if(bally==player1y+3||bally==player1y+4)ball->changdirectionsection(DOWNRIGHT);
+        //ball->changdirectionsection((directions)((rand() % 3) + 4));
 
         //right paddle
         //for (int i = 0; i < 5; i++)
         if (ballx == player2x - 1)
             if (bally == player2y || bally==player2y+1 )
-                ball->changeDirection(UPLEFT);
+                ball->changdirectionsection(UPLEFT);
             else if(bally==player2y+2)
-                ball->changeDirection(LEFT);
-            else if(bally==player2y+3||bally==player2y+4) ball->changeDirection(DOWNLEFT);
+                ball->changdirectionsection(LEFT);
+            else if(bally==player2y+3||bally==player2y+4) ball->changdirectionsection(DOWNLEFT);
         //right wall
         if (ballx == width - 1)
             ScoreUp(player1);
@@ -756,6 +752,7 @@ public:
         //top wall
         if (bally == 0)
             ball->directieOpusaPerete();
+        ball->Move();
     }
     void Run()
     {
@@ -771,65 +768,65 @@ public:
 int main()
 {
     PlaySound(TEXT("Celtic_Music_-_Moonsong_1_ (3)"), NULL, SND_FILENAME | SND_ASYNC );
-    int y,z,q;
+    int y,z,q,height=91,width=25;
     SetColor(11);
-    cout << "Tipul jocului:" << endl;
-    cout << "1.Normal" << endl;
-    cout << "2.Obstacol" << endl;
+    cout << "Tipul jocului:" << "\n";
+    cout << "1.Normal" << "\n";
+    cout << "2.Obstacol" << "\n";
     cin >> z;
     if (z == 1)
     {
-        cout << "1.jucator vs jucator" << endl;
-        cout << "2.Vs Computer" << endl;
+        cout << "1.jucator vs jucator" << "\n";
+        cout << "2.Vs Computer" << "\n";
         cin >> y;
         if (y == 2)
         {
-            cout << "Nivel de dificultate:" << endl;
-            cout << "1.Usor" << endl;
-            cout << "2.Normal" << endl;
-            cout << "3.Greu" << endl;
+            cout << "Nivel de dificultate:" << "\n";
+            cout << "1.Usor" << "\n";
+            cout << "2.Normal" << "\n";
+            cout << "3.Greu" << "\n";
             cin >> q;
         }
         if (y == 1)
         {
             cout << "\xDB" << "\n";
             PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
-            cGameManger c(91, 25,0);
+            cGameManger c(height, width,0);
             c.Run();
         }
         else if (y == 2)
         {
             cout << "\xDB" << "\n";
             PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
-            aiGameManger c(91, 25, q,0);
+            aiGameManger c(height, width, q,0);
             c.Run();
         }
     }
     else if (z==2)
     {
-        cout << "1.jucator vs jucator" << endl;
-        cout << "2.Vs Computer" << endl;
+        cout << "1.jucator vs jucator" << "\n";
+        cout << "2.Vs Computer" << "\n";
         cin >> y;
         if (y == 2)
         {
-            cout << "Nivel de dificultate:" << endl;
-            cout << "1.Usor" << endl;
-            cout << "2.Normal" << endl;
-            cout << "3.Greu" << endl;
+            cout << "Nivel de dificultate:" << "\n";
+            cout << "1.Usor" << "\n";
+            cout << "2.Normal" << "\n";
+            cout << "3.Greu" << "\n";
             cin >> q;
         }
         if (y == 1)
         {
             cout << "\xDB" << "\n";
             PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
-            cGameManger c(91, 25,1);
+            cGameManger c(height, width,1);
             c.Run();
         }
         else if (y == 2)
         {
             cout << "\xDB" << "\n";
             PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
-            aiGameManger c(91, 25, q,1);
+            aiGameManger c(height, width, q,1);
             c.Run();
         }
     }
