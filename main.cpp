@@ -5,13 +5,25 @@
 #include <conio.h>
 #include <MMSystem.h>
 using namespace std;
+void SetColor(int value)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  value);
+}
+void ShowConsoleCursor()
+{
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(out,&cursorInfo);
+    cursorInfo.bVisible = 0;
+    SetConsoleCursorInfo(out,&cursorInfo);
+}
 enum eDir { STOP = 0, LEFT = 1, UPLEFT = 2, DOWNLEFT = 3, RIGHT = 4, UPRIGHT = 5, DOWNRIGHT = 6 };
 class cBall
 {
 private:
     int x, y;
     int originalX, originalY;
-eDir direction;
+    eDir direction;
 public:
 
     cBall(int posX, int posY)
@@ -99,7 +111,8 @@ public:
         }
     }
     bool directiedreapta()
-    {switch (direction)
+    {
+        switch (direction)
         {
         case RIGHT:
             return true;
@@ -111,13 +124,13 @@ public:
         default:
             return false;
 
-    }
-    /*friend ostream & operator<<(ostream & o, cBall c)
-    {
-    	o << "Ball [" << c.x << "," << c.y << "][" << c.direction << "]";
-    	return o;
-    }
-    */
+        }
+        /*friend ostream & operator<<(ostream & o, cBall c)
+        {
+        	o << "Ball [" << c.x << "," << c.y << "][" << c.direction << "]";
+        	return o;
+        }
+        */
     }
 };
 class cPaddle
@@ -207,7 +220,7 @@ public:
 class aiGameManger
 {
 private:
-    int width, height;
+    int width, height,dif=1,obs=0;
     int score1, score2;
     char up1, down1, up2, down2;
     bool quit;
@@ -216,14 +229,15 @@ private:
     cPaddle *player;
     AI *ai;
 public:
-    aiGameManger(int w, int h,int di)
+    aiGameManger(int w, int h,int di,int ob)
     {
         srand(time(NULL));
         quit = false;
         up1 = 'w';
 
         down1 = 's';
-d=di;
+        d=di;
+        obs=ob;
         score1 = score2 = 0;
         width = w;
         height = h;
@@ -239,7 +253,7 @@ d=di;
     void ScoreUpPlayer(cPaddle * player)
     {
 
-            score1++;
+        score1++;
 
 
 
@@ -248,8 +262,9 @@ d=di;
         ai->Reset();
     }
     void ScoreUpAi(AI *ai)
-    {score2++;
-     ball->Reset();
+    {
+        score2++;
+        ball->Reset();
         player->Reset();
         ai->Reset();
     }
@@ -260,6 +275,7 @@ d=di;
     }
     void Draw()
     {
+        ShowConsoleCursor();
         ClearScreen(0,0);
         int ballx = ball->getX();
         int bally = ball->getY();
@@ -267,6 +283,8 @@ d=di;
         int player2x = ai->getX();
         int player1y = player->getY();
         int player2y = ai->getY();
+
+        SetColor(11);
 
         for (int i = 0; i < width+2; i++)
             cout << "\xB2";
@@ -282,38 +300,81 @@ d=di;
                     cout << "\xB2";
 
                 if (ballx == j && bally == i)
+                {
+                    SetColor(15);
                     cout << "O"; //ball
-                else if(j==width/2 && i<height/3)
+                }
+
+                else if(obs==1 &&j==width/2 && i<height/3)
+                {
+                    SetColor(11);
                     cout << "\xB2";
-                else if(j==width/2 && i>(2*height)/3)
+                }
+                else if(obs==1 && j==width/2 && i>(2*height)/3)
+                {
+                    SetColor(11);
                     cout << "\xB2";
+                }
                 else if (player1x == j && player1y == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y == i)
-                    cout << "\xDB"; //player2
+                {
+                    SetColor(12);
+                    cout << "\xB2";
+                } //player2
 
                 else if (player1x == j && player1y + 1 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 2 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 3 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 4 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
 
                 else if (player2x == j && player2y + 1 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(12);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 2 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(12);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 3 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(12);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 4 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(12);
+                    cout << "\xB2";
+                } //player1
                 else
                     cout << " ";
 
                 if (j == width - 1)
+                {
+                    SetColor(11);
                     cout << "\xB2";
+                } //player1
             }
             cout << "\n";
         }
@@ -321,8 +382,8 @@ d=di;
         for (int i = 0; i < width + 2; i++)
             cout << "\xB2";
         cout << "\n";
-
-        cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+        SetColor(10);
+        cout << "Score Player: " << score1 << endl << "Score AI: " << score2 << endl;
     }
     void Input()
     {
@@ -356,12 +417,13 @@ d=di;
             if (current == 'q')
                 quit = true;
         }
-        if(ballx > width/4*(4-d) && ball->directiedreapta())
-        {unsigned int u= (unsigned int)((rand() % 3) +1);
-        if(bally<player2y+u  && player2y>0) ai->moveUp();
-        else if(bally>player2y+u && player2y+5<height) ai->moveDown();
+        if(ballx > width/4*(4-d) && ball->directiedreapta() && dif%5!=0)
+        {
+            unsigned int u= (unsigned int)((rand() % 3) +1);
+            if(bally<player2y+u  && player2y>0) ai->moveUp();
+            else if(bally>player2y+u && player2y+5<height) ai->moveDown();
         }
-
+        ++dif;
     }
     void Logic()
     {
@@ -381,12 +443,7 @@ d=di;
 
 
 
-        //right wall
-        if (ballx == width - 1)
-            ScoreUpPlayer(player);
-        //left wall
-        if (ballx == 0)
-            ScoreUpAi(ai);
+
         //bottom wall
         //paleta stanga
         //for (int i = 0; i < 5; i++)
@@ -407,12 +464,23 @@ d=di;
                 ball->changeDirection(LEFT);
             else if(bally==player2y+3||bally==player2y+4) ball->changeDirection(DOWNLEFT);
 
-
+        //right wall
+        if (ballx == width - 1)
+            ScoreUpPlayer(player);
+        //left wall
+        if (ballx == 0)
+            ScoreUpAi(ai);
         //obstacole
-        if(ballx==width/2-1 || ballx==width/2+1)
-            if(bally<height/3 || bally>(2*height)/3)
-                ball->directieOpusa();
+        if(obs==1)
+        {
+            if(ballx==width/2-1 || ballx==width/2+1)
+                if(bally<height/3 || bally>(2*height)/3)
+                    ball->directieOpusa();
+            if(ballx==width/2)
+                if( bally==height/3+1 || bally>(2 * height) / 3 -1)
 
+                    ball->directieOpusaPerete();
+        }
 
 
 
@@ -444,15 +512,16 @@ class cGameManger
 {
 private:
     int width, height;
-    int score1, score2;
+    int score1, score2,obs;
     char up1, down1, up2, down2;
     bool quit;
     cBall * ball;
     cPaddle *player1;
     cPaddle *player2;
 public:
-    cGameManger(int w, int h)
+    cGameManger(int w, int h,int ob)
     {
+        obs=ob;
         srand(time(NULL));
         quit = false;
         up1 = 'w';
@@ -488,6 +557,7 @@ public:
     }
     void Draw()
     {
+        ShowConsoleCursor();
         ClearScreen(0,0);
         int ballx = ball->getX();
         int bally = ball->getY();
@@ -495,6 +565,8 @@ public:
         int player2x = player2->getX();
         int player1y = player1->getY();
         int player2y = player2->getY();
+
+        SetColor(11);
 
         for (int i = 0; i < width+2; i++)
             cout << "\xB2";
@@ -510,38 +582,80 @@ public:
                     cout << "\xB2";
 
                 if (ballx == j && bally == i)
+                {
+                    SetColor(15);
                     cout << "O"; //ball
-                else if(j==width/2 && i<height/3)
+                }
+                else if(obs==1 &&j==width/2 && i<height/3)
+                {
+                    SetColor(11);
                     cout << "\xB2";
-                else if(j==width/2 && i>(2*height)/3)
+                }
+                else if(obs==1&&j ==width/2 && i>(2*height)/3)
+                {
+                    SetColor(11);
                     cout << "\xB2";
+                }
                 else if (player1x == j && player1y == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y == i)
-                    cout << "\xDB"; //player2
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player2
 
                 else if (player1x == j && player1y + 1 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 2 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 3 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player1x == j && player1y + 4 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
 
                 else if (player2x == j && player2y + 1 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 2 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 3 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else if (player2x == j && player2y + 4 == i)
-                    cout << "\xDB"; //player1
+                {
+                    SetColor(11);
+                    cout << "\xB2";
+                } //player1
                 else
                     cout << " ";
 
                 if (j == width - 1)
+                {
+                    SetColor(11);
                     cout << "\xB2";
+                } //player1
             }
             cout << "\n";
         }
@@ -549,8 +663,8 @@ public:
         for (int i = 0; i < width + 2; i++)
             cout << "\xB2";
         cout << "\n";
-
-        cout << "Score 1: " << score1 << endl << "Score 2: " << score2 << endl;
+        SetColor(10);
+        cout << "Score Player 1: " << score1 << endl << "Score Player 2: " << score2 << endl;
     }
     void Input()
     {
@@ -597,12 +711,7 @@ public:
         int player1y = player1->getY();
         int player2y = player2->getY();
 
-        //right wall
-        if (ballx == width - 1)
-            ScoreUp(player1);
-        //left wall
-        if (ballx == 0)
-            ScoreUp(player2);
+
         //bottom wall
         //paleta stanga
         //for (int i = 0; i < 5; i++)
@@ -622,14 +731,23 @@ public:
             else if(bally==player2y+2)
                 ball->changeDirection(LEFT);
             else if(bally==player2y+3||bally==player2y+4) ball->changeDirection(DOWNLEFT);
-
+        //right wall
+        if (ballx == width - 1)
+            ScoreUp(player1);
+        //left wall
+        if (ballx == 0)
+            ScoreUp(player2);
 
         //obstacole
-        if(ballx==width/2-1 || ballx==width/2+1)
-            if(bally<height/3 || bally>(2*height)/3)
-                ball->directieOpusa();
-
-
+        if(obs==1)
+        {
+            if(ballx==width/2-1 || ballx==width/2+1)
+                if(bally<height/3 || bally>(2*height)/3)
+                    ball->directieOpusa();
+            if(ballx==width/2)
+                if( bally==height/3+1 || bally>(2 * height) / 3 -1)
+                    ball->directieOpusaPerete();
+        }
 
 
         //bottom wall
@@ -644,24 +762,77 @@ public:
         while (!quit)
         {
             Draw();
-Input();
+            Input();
             Logic();
 
         }
     }
 };
 int main()
-{/*
-    cGameManager: 2 jucatori
-    aiGameManager: 1 jucator
-    al treilea parametru:dificultatea(0 1 2 3 sau 4)
-    */
-    cout<<"\xDB"<<"\n";
+{
+    PlaySound(TEXT("Celtic_Music_-_Moonsong_1_ (3)"), NULL, SND_FILENAME | SND_ASYNC );
+    int y,z,q;
+    SetColor(11);
+    cout << "Tipul jocului:" << endl;
+    cout << "1.Normal" << endl;
+    cout << "2.Obstacol" << endl;
+    cin >> z;
+    if (z == 1)
+    {
+        cout << "1.jucator vs jucator" << endl;
+        cout << "2.Vs Computer" << endl;
+        cin >> y;
+        if (y == 2)
+        {
+            cout << "Nivel de dificultate:" << endl;
+            cout << "1.Usor" << endl;
+            cout << "2.Normal" << endl;
+            cout << "3.Greu" << endl;
+            cin >> q;
+        }
+        if (y == 1)
+        {
+            cout << "\xDB" << "\n";
+            PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
+            cGameManger c(91, 25,0);
+            c.Run();
+        }
+        else if (y == 2)
+        {
+            cout << "\xDB" << "\n";
+            PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
+            aiGameManger c(91, 25, q,0);
+            c.Run();
+        }
+    }
+    else if (z==2)
+    {
+        cout << "1.jucator vs jucator" << endl;
+        cout << "2.Vs Computer" << endl;
+        cin >> y;
+        if (y == 2)
+        {
+            cout << "Nivel de dificultate:" << endl;
+            cout << "1.Usor" << endl;
+            cout << "2.Normal" << endl;
+            cout << "3.Greu" << endl;
+            cin >> q;
+        }
+        if (y == 1)
+        {
+            cout << "\xDB" << "\n";
+            PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
+            cGameManger c(91, 25,1);
+            c.Run();
+        }
+        else if (y == 2)
+        {
+            cout << "\xDB" << "\n";
+            PlaySound(TEXT("Celtic Music - Síocháin Shuthain.wav"), NULL, SND_FILENAME | SND_ASYNC  );
+            aiGameManger c(91, 25, q,1);
+            c.Run();
+        }
+    }
 
-
-      PlaySound(TEXT("1.wav"), NULL, SND_FILENAME | SND_ASYNC);
-
-    aiGameManger c(81, 25,2);
-    c.Run();
     return 0;
 }
